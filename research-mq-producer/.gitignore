@@ -1,0 +1,9 @@
+/target/
+/bin/
+/build/
+/.settings/
+/.project
+/.classpath
+/WebContent/
+.DS_Store
+.inoger

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:tx="http://www.springframework.org/schema/tx"
+	   xmlns:aop="http://www.springframework.org/schema/aop"
+	   xmlns:util="http://www.springframework.org/schema/util"
+	   xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	   xmlns:wandaredis="http://www.wanda.cn/redisClient"
+	   xmlns:rdb="http://www.dangdang.com/schema/ddframe/rdb"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+                        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+                        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+                        http://www.dangdang.com/schema/ddframe/rdb http://www.dangdang.com/schema/ddframe/rdb/rdb.xsd"
+                        >
+
+	<context:annotation-config />
+	<context:component-scan base-package="com.hen.dao" />
+	
+	<!-- Mybatis session factory -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean" lazy-init="false">		
+		<property name="mapperLocations" value="classpath:sqlmapper/*.xml" />
+		<property name="configLocation" value="classpath:mybatis-config.xml" />
+		<property name="typeAliasesPackage" value="com.hen.entity" />
+		<property name="typeAliasesSuperType" value="com.hen.common.BaseEntity" />
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<bean id="mapperScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.hen.dao" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+		<property name="annotationClass" value="com.hen.common.MyBatisDao" />
+	</bean>
+
+	<!-- Druid Configuration -->
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+		<property name="url" value="#{system['jdbc.url']}" />
+		<property name="username" value="#{system['jdbc.username']}" />
+		<property name="password" value="#{system['jdbc.password']}" />
+		
+		<property name="filters" value="stat" />
+
+		<property name="maxActive" value="#{system['jdbc.maxActive']}" />
+		<property name="initialSize" value="#{system['jdbc.initialSize']}" />
+		<property name="maxWait" value="#{system['jdbc.maxWait']}" />
+		<property name="minIdle" value="#{system['jdbc.minIdle']}" />
+
+		<property name="timeBetweenEvictionRunsMillis" value="60000" />
+		<property name="minEvictableIdleTimeMillis" value="300000" />
+
+		<property name="validationQuery" value="SELECT 'x'" />
+		<property name="testWhileIdle" value="true" />
+		<property name="testOnBorrow" value="false" />
+		<property name="testOnReturn" value="false" />
+
+		<property name="poolPreparedStatements" value="true" />
+		<property name="maxPoolPreparedStatementPerConnectionSize" value="#{system['jdbc.maxPoolPreparedStatementPerConnectionSize']}" />
+	</bean>
+	
+
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="sqlSessionFactory" />
+	</bean>
+
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<bean id="transactionTemplate"
+		class="org.springframework.transaction.support.TransactionTemplate">
+		<property name="transactionManager" ref="transactionManager" />
+	</bean>	
+	 <!-- 事务（注解 ）-->
+	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true" />
+
+<!--    
+	<rdb:strategy id="orderTableStrategry" sharding-columns="order_id" algorithm-class="com.wanda.ffan.account.dao.sharding.SingleKeyModuloTableShardingAlgorithm"/>
+	<rdb:strategy id="entryTableStrategry" sharding-columns="trans_time" algorithm-class="com.wanda.ffan.account.dao.sharding.EntryShardingAlgorithm"/>
+	<rdb:data-source id="dataSource">
+		<rdb:sharding-rule data-sources="dataSource0" default-data-source="dataSource0">
+			<rdb:table-rules>
+				<rdb:table-rule logic-table="t_account_entry" actual-tables="t_account_entry" /> 
+				<rdb:table-rule logic-table="t_order" actual-tables="t_order_${0..3}" table-strategy="orderTableStrategry" />				
+				<rdb:table-rule logic-table="t_acct_account" actual-tables="t_acct_account"/>
+				<rdb:table-rule logic-table="t_acct_operator_log" actual-tables="t_acct_operator_log"/>
+				<rdb:table-rule logic-table="t_acct_request_log" actual-tables="t_acct_request_log"/>
+				<rdb:table-rule logic-table="t_acct_type" actual-tables="t_acct_type"/>
+
+			</rdb:table-rules>
+
+			<rdb:default-database-strategy sharding-columns="none" algorithm-class="com.dangdang.ddframe.rdb.sharding.api.strategy.database.NoneDatabaseShardingAlgorithm"/>
+            <rdb:default-table-strategy sharding-columns="none" algorithm-class="com.dangdang.ddframe.rdb.sharding.api.strategy.table.NoneTableShardingAlgorithm"/>
+
+		</rdb:sharding-rule>
+	</rdb:data-source>  	
+-->
+
+</beans>

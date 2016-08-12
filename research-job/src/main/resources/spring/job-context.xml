@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context" 
+	xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:reg="http://www.dangdang.com/schema/ddframe/reg"
+    xmlns:job="http://www.dangdang.com/schema/ddframe/job"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/context 
+                        http://www.springframework.org/schema/context/spring-context.xsd 
+                        http://www.springframework.org/schema/util 
+                        http://www.springframework.org/schema/util/spring-util.xsd
+                        http://www.dangdang.com/schema/ddframe/reg
+                        http://www.dangdang.com/schema/ddframe/reg/reg.xsd
+                        http://www.dangdang.com/schema/ddframe/job
+                        http://www.dangdang.com/schema/ddframe/job/job.xsd">
+
+	<context:component-scan base-package="com.hen.job" />
+	<context:property-placeholder location="classpath:config/*.properties" />
+	
+	<!--配置作业注册中心 -->
+	<reg:zookeeper id="regCenter" server-lists="${zk.address}"
+		namespace="${ejob.namespace}" base-sleep-time-milliseconds="1000"
+		max-sleep-time-milliseconds="3000" max-retries="3" />
+		
+	<!-- 配置作业A 
+	<job:simple id="simpleLoggerJob" class="com.hen.job.SimpleLoggerJob"
+		registry-center-ref="regCenter" cron="0/5 * * * * ?" sharding-total-count="3"
+		sharding-item-parameters="0=A,1=B,2=C" />
+	-->	
+	<!-- 配置作业B -->
+	<job:dataflow id="throughputJob" class="com.hen.job.ThroughputJob"
+		registry-center-ref="regCenter" cron="0 31 10 * * ?" sharding-total-count="3" 
+		process-count-interval-seconds="30" streaming-process="true" overwrite="true"/>
+
+</beans>

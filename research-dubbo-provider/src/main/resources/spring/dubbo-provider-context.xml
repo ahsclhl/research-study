@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:task="http://www.springframework.org/schema/task" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://code.alibabatech.com/schema/dubbo
+        http://code.alibabatech.com/schema/dubbo/dubbo.xsd"
+	default-lazy-init="true">
+
+	<description>Spring Configuration</description>
+
+	<!-- 具体的实现bean -->
+	<bean id="helloProvider"
+		class="com.hen.dubbo.provider.impl.HelloProviderImpl" />
+
+	<!-- 提供方应用信息，用于计算依赖关系 -->
+	<dubbo:application name="henry_provider" />
+
+	<!-- 使用multicast广播注册中心暴露服务地址 <dubbo:registry address="multicast://224.5.6.7:1234"  /> -->
+
+	<!-- 使用zookeeper注册中心暴露服务地址 -->
+	<dubbo:registry address="zookeeper://127.0.0.1:2181" />
+
+	<!-- 用dubbo协议在20880端口暴露服务 -->
+	<dubbo:protocol name="dubbo" port="#{system['dubbo.provider.port']}" />
+
+	<!-- 声明需要暴露的服务接口 -->
+	<!-- cluster 属性能够帮助集群环境下的多provider 寻找，有多重策略 -->
+	<dubbo:service interface="com.hen.dubbo.api.HelloProvider"
+		ref="helloProvider" cluster="forking" retries="2" timeout="100">
+		<dubbo:method name="sayHello" timeout="80" retries="2" />
+	</dubbo:service>
+
+</beans>

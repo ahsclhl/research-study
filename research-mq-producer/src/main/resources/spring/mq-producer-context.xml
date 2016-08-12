@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:util="http://www.springframework.org/schema/util"
+	   xmlns:tx="http://www.springframework.org/schema/tx"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+                        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+	
+	<description>ActiveMQ Producer Configuration</description>
+
+	<!-- message queue -->
+	<!-- 配置JMS连接工厂-->
+	<bean id="connectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+		<property name="brokerURL" value="failover:(tcp://localhost:61616)" />
+	</bean>
+	 
+
+	<bean id="queueDestination" class="org.apache.activemq.command.ActiveMQQueue">
+		<!-- 设置消息队列的名字 -->
+		<constructor-arg>
+			<value>queue1</value>
+		</constructor-arg>
+	</bean>
+
+	<bean id = "jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory" ref="connectionFactory" />
+		<property name="defaultDestination" ref="queueDestination"/>
+		<property name="receiveTimeout" value="10000"/>
+	</bean>
+	
+	<!-- p2p -->
+	<bean id="producer" class="com.hen.mq.producer.P2PProducer">
+		<property name="jmsTemplate" ref="jmsTemplate"></property>
+	</bean>
+
+ 	<!-- topic pub sub -->
+	<bean id="topicDestination" class="org.apache.activemq.command.ActiveMQTopic">
+		<constructor-arg>
+			<value>henry</value>
+		</constructor-arg>
+	</bean>
+	
+	<bean id = "topicJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory" ref="connectionFactory" />
+		<property name="defaultDestination" ref="topicDestination"/>
+		<property name="pubSubDomain" value="true" />
+		<property name="receiveTimeout" value="10000"/>
+	</bean>
+ 
+ 	<bean id="topicProducer" class="com.hen.mq.producer.TopicProducer">
+		<property name="jmsTemplate" ref="jmsTemplate"></property>
+	</bean>
+	
+	<bean id="jmsTransactionTemplate" class="org.springframework.jms.connection.JmsTransactionManager">
+		<property name="connectionFactory" ref="connectionFactory" />
+	</bean>
+	
+	<tx:annotation-driven transaction-manager="jmsTransactionTemplate"
+		proxy-target-class="true" />
+</beans>
