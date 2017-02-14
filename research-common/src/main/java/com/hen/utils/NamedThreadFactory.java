@@ -12,7 +12,7 @@ public class NamedThreadFactory implements ThreadFactory {
 	private String prefix;
 	
 	public NamedThreadFactory() {
-		
+		this.prefix = generateName("");
 	}
 	
 	public NamedThreadFactory(String name) {

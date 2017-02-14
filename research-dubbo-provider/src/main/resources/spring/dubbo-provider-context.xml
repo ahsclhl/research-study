@@ -11,7 +11,7 @@
         http://code.alibabatech.com/schema/dubbo/dubbo.xsd"
 	default-lazy-init="true">
 
-	<description>Spring Configuration</description>
+	<description>Dubbo provider Configuration</description>
 
 	<!-- 具体的实现bean -->
 	<bean id="helloProvider"

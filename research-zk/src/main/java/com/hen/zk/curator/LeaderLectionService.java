@@ -11,6 +11,16 @@ import org.springframework.stereotype.Service;
 * @author  liaohenry
 * @version 2016年8月11日 上午10:45:13
 * 测试Curator LeaderLatch：如果没有拿到Leadership，则block
+* 基于Ephemeral sequential node
+* 
+ * <p>
+ * Abstraction to select a "leader" amongst multiple contenders in a group of JMVs connected to
+ * a Zookeeper cluster. If a group of N thread/processes contend for leadership one will
+ * randomly be assigned leader until it releases leadership at which time another one from the
+ * group will randomly be chosen
+ * </p>
+*
+* 
 */
 @Service
 public class LeaderLectionService {

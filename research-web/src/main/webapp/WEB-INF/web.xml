@@ -5,8 +5,18 @@
 	id="WebApp_ID" version="2.5">
 
 	<display-name>accp-web</display-name>
-  	
-  	<filter>
+	<filter>
+		<filter-name>springSessionRepositoryFilter</filter-name>
+		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>springSessionRepositoryFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>ERROR</dispatcher>
+	</filter-mapping>
+
+	<filter>
 		<filter-name>encodingFilter</filter-name>
 		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
 		<init-param>
@@ -22,26 +32,26 @@
 		<filter-name>encodingFilter</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
-	
-    <!-- 浏览器不支持put,delete等method,由该filter将/blog?_method=delete转换为标准的http delete方法 -->
-    <filter>
-        <filter-name>HiddenHttpMethodFilter</filter-name>
-        <filter-class>org.springframework.web.filter.HiddenHttpMethodFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>HiddenHttpMethodFilter</filter-name>
-        <servlet-name>DispatcherServlet</servlet-name>
-    </filter-mapping>
-    <filter>
-        <filter-name>httpPutFormFilter</filter-name>
-        <filter-class>org.springframework.web.filter.HttpPutFormContentFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>httpPutFormFilter</filter-name>
-        <servlet-name>DispatcherServlet</servlet-name>
-    </filter-mapping>
-    	
-  	<servlet>
+
+	<!-- 浏览器不支持put,delete等method,由该filter将/blog?_method=delete转换为标准的http delete方法 -->
+	<filter>
+		<filter-name>HiddenHttpMethodFilter</filter-name>
+		<filter-class>org.springframework.web.filter.HiddenHttpMethodFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>HiddenHttpMethodFilter</filter-name>
+		<servlet-name>DispatcherServlet</servlet-name>
+	</filter-mapping>
+	<filter>
+		<filter-name>httpPutFormFilter</filter-name>
+		<filter-class>org.springframework.web.filter.HttpPutFormContentFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>httpPutFormFilter</filter-name>
+		<servlet-name>DispatcherServlet</servlet-name>
+	</filter-mapping>
+
+	<servlet>
 		<servlet-name>DispatcherServlet</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
 		<init-param>
@@ -51,6 +61,7 @@
 				classpath*:/spring/dao-context.xml,
 				classpath*:/spring/service-context.xml,
 				classpath*:/spring/service-aop-context.xml,
+				classpath*:/spring/session-context.xml,
 				classpath*:/spring/web-context.xml,
 				classpath*:/spring/job-context.xml,
 				classpath*:/concurrency-context.xml
@@ -62,10 +73,19 @@
 		<servlet-name>DispatcherServlet</servlet-name>
 		<url-pattern>/research/v1/*</url-pattern>
 	</servlet-mapping>
+
+	<session-config>
+		<session-timeout>15</session-timeout>
+	</session-config>
+
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+	</welcome-file-list>
 	
-    <session-config>
-        <session-timeout>15</session-timeout>
-    </session-config>
-    
+	<listener>
+		<listener-class>
+			org.springframework.web.context.ContextLoaderListener
+		</listener-class>
+	</listener>
 
 </web-app>
